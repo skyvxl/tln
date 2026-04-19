@@ -1,0 +1,9 @@
+/bin/
+/certs/
+*.db
+*.db-journal
+/coverage.out
+.idea/
+.vscode/
+.DS_Store
+/.agents/
