@@ -3,8 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log/slog"
+	"os"
 
 	"github.com/skyvxl/tln/internal/buildinfo"
+	"github.com/skyvxl/tln/internal/config"
+	"github.com/skyvxl/tln/internal/logger"
 )
 
 func main() {
@@ -16,5 +20,26 @@ func main() {
 		return
 	}
 
-	fmt.Println("tlnd: phase 0 - not implemented yet")
+	if err := run(); err != nil {
+		fmt.Fprintf(os.Stderr, "fatal: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
+	cfg, err := config.LoadServer()
+	if err != nil {
+		return err
+	}
+	log := logger.New(os.Stderr, logger.Format(cfg.LogFormat), cfg.LogLevel)
+	slog.SetDefault(log)
+
+	log.Info("tlnd starting",
+		"version", buildinfo.Version,
+		"commit", buildinfo.Commit,
+		"log_format", cfg.LogFormat,
+		"log_level", cfg.LogLevel,
+	)
+	log.Info("tlnd exiting (stub)")
+	return nil
 }
