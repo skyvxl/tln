@@ -8,7 +8,7 @@ import (
 
 type ClientConfig struct {
 	LogFormat string `env:"TLN_LOG_FORMAT" envDefault:"text"`
-	LogLevel  string `env:"TLN_LOG_LEVEL" envDefault:"info"`
+	LogLevel  string `env:"TLN_LOG_LEVEL"  envDefault:"info"`
 }
 
 func LoadClient() (ClientConfig, error) {
@@ -16,5 +16,6 @@ func LoadClient() (ClientConfig, error) {
 	if err := env.Parse(&c); err != nil {
 		return c, fmt.Errorf("parse client config: %w", err)
 	}
+
 	return c, nil
 }

@@ -8,7 +8,7 @@ import (
 
 type ServerConfig struct {
 	LogFormat string `env:"TLN_LOG_FORMAT" envDefault:"text"`
-	LogLevel  string `env:"TLN_LOG_LEVEL" envDefault:"info"`
+	LogLevel  string `env:"TLN_LOG_LEVEL"  envDefault:"info"`
 }
 
 func LoadServer() (ServerConfig, error) {
@@ -16,5 +16,6 @@ func LoadServer() (ServerConfig, error) {
 	if err := env.Parse(&c); err != nil {
 		return c, fmt.Errorf("parse server config: %w", err)
 	}
+
 	return c, nil
 }

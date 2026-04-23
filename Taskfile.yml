@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: "3"
+
+vars:
+  BIN_DIR: bin
+  MODULE: github.com/skyvxl/tln
+  VERSION:
+    sh: git describe --tags --always --dirty || echo dev
+  COMMIT:
+    sh: git rev-parse --short HEAD || echo none
+  BUILD_DATE:
+    sh: git log -1 --format=%cI || echo unknown
+  LDFLAGS: >-
+    -X {{.MODULE}}/internal/buildinfo.Version={{.VERSION}} -X
+    {{.MODULE}}/internal/buildinfo.Commit={{.COMMIT}} -X
+    {{.MODULE}}/internal/buildinfo.BuildDate={{.BUILD_DATE}}
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  build:
+    desc: Build both binaries
+    deps: [ build:server, build:client ]
+
+  build:server:
+    desc: Build tlnd server binary
+    cmds:
+      - go build -ldflags "{{.LDFLAGS}}" -o {{.BIN_DIR}}/tlnd{{exeExt}}
+        ./cmd/tlnd
+
+  build:client:
+    desc: Build tlnc client binary
+    cmds:
+      - go build -ldflags "{{.LDFLAGS}}" -o {{.BIN_DIR}}/tlnc{{exeExt}}
+        ./cmd/tlnc
+
+  clean:
+    desc: Remove build artifacts
+    cmds:
+      - cmd: powershell -NoProfile -Command "if (Test-Path {{.BIN_DIR}}) { Remove-Item
+          -Recurse -Force {{.BIN_DIR}} }"
+        platforms: [ windows ]
+      - cmd: rm -rf {{.BIN_DIR}}
+        platforms: [ linux, darwin ]
+
+  lint:
+    desc: Run golangci-lint
+    cmds:
+      - golangci-lint run
+
+  tidy:
+    desc: Tidy go.mod
+    cmds:
+      - go mod tidy
+
+  version:
+    desc: Show build variables
+    cmds:
+      - "echo VERSION:    {{.VERSION}}"
+      - "echo COMMIT:     {{.COMMIT}}"
+      - "echo BUILD_DATE: {{.BUILD_DATE}}"
