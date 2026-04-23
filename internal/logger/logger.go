@@ -1,3 +1,4 @@
+// Package logger provides structured logging initialization using slog.
 package logger
 
 import (
@@ -7,13 +8,16 @@ import (
 	"strings"
 )
 
+// Format specifies the output format for log lines.
 type Format string
 
+// Supported logging formats.
 const (
 	FormatJSON Format = "json"
 	FormatText Format = "text"
 )
 
+// New initializes and returns a configures *slog.Logger.
 func New(w io.Writer, format Format, level string) *slog.Logger {
 	if w == nil {
 		w = os.Stderr

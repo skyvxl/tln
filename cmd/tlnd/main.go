@@ -1,3 +1,4 @@
+// Package main is the entry point for the tln server application.
 package main
 
 import (
