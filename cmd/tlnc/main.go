@@ -1,3 +1,4 @@
+// Package main is the entry point for the tln client application.
 package main
 
 import (
@@ -17,6 +18,7 @@ func main() {
 
 	if *showVersion {
 		fmt.Println("tlnc", buildinfo.String())
+
 		return
 	}
 
@@ -41,5 +43,6 @@ func run() error {
 	)
 
 	log.Info("tlnc exiting (phase 0 stub)")
+
 	return nil
 }

@@ -1,3 +1,4 @@
+// Package main is the entry point for the tln server application.
 package main
 
 import (
@@ -17,6 +18,7 @@ func main() {
 
 	if *showVersion {
 		fmt.Println("tlnd", buildinfo.String())
+
 		return
 	}
 
@@ -31,6 +33,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
+
 	log := logger.New(os.Stderr, logger.Format(cfg.LogFormat), cfg.LogLevel)
 	slog.SetDefault(log)
 
@@ -41,5 +44,6 @@ func run() error {
 		"log_level", cfg.LogLevel,
 	)
 	log.Info("tlnd exiting (stub)")
+
 	return nil
 }
