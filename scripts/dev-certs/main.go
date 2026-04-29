@@ -24,6 +24,16 @@ const (
 	serverValidity = 365 * 24 * time.Hour
 )
 
+type caBundle struct {
+	Cert *x509.Certificate
+	Key  *ecdsa.PrivateKey
+}
+
+type serverBundle struct {
+	CertDER []byte
+	Key     *ecdsa.PrivateKey
+}
+
 func main() {
 	if err := run(); err != nil {
 		fmt.Fprintf(os.Stderr, "fatal: %v\n", err)
@@ -36,39 +46,40 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("create certs dir: %w", err)
 	}
-	certCA, certDER, key, err := generateCA()
+	bundle, err := generateCA()
 	if err != nil {
 		return fmt.Errorf("generate CA: %w", err)
 	}
-	serverCertDER, serverKey, err := generateServer(certCA, key)
+	serverBundle, err := generateServer(bundle)
 	if err != nil {
 		return fmt.Errorf("generate server certificate: %w", err)
 	}
-	err = writeCertPEM(filepath.Join(certsDir, "ca.crt"), certDER)
+	err = writeCertPEM(filepath.Join(certsDir, "ca.crt"), bundle.Cert.Raw)
 	if err != nil {
 		return fmt.Errorf("write CA certificate: %w", err)
 	}
-	err = writeCertPEM(filepath.Join(certsDir, "server.crt"), serverCertDER)
+	err = writeCertPEM(filepath.Join(certsDir, "server.crt"), serverBundle.CertDER)
 	if err != nil {
 		return fmt.Errorf("write server certificate: %w", err)
 	}
-	err = writeKeyPEM(filepath.Join(certsDir, "server.key"), serverKey)
+	err = writeKeyPEM(filepath.Join(certsDir, "server.key"), serverBundle.Key)
 	if err != nil {
 		return fmt.Errorf("write server's key: %w", err)
 	}
 	return nil
 }
 
-func generateCA() (*x509.Certificate, []byte, *ecdsa.PrivateKey, error) {
+func generateCA() (caBundle, error) {
+	var bundle caBundle
 	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
-		return nil, nil, nil, err
+		return bundle, err
 	}
 
 	serialMax := new(big.Int).Lsh(big.NewInt(1), 128)
 	serial, err := rand.Int(rand.Reader, serialMax)
 	if err != nil {
-		return nil, nil, nil, err
+		return bundle, err
 	}
 
 	template := &x509.Certificate{
@@ -83,20 +94,29 @@ func generateCA() (*x509.Certificate, []byte, *ecdsa.PrivateKey, error) {
 
 	certDER, err := x509.CreateCertificate(rand.Reader, template, template, &privateKey.PublicKey, privateKey)
 	if err != nil {
-		return nil, nil, nil, err
+		return bundle, err
 	}
 
 	certCA, err := x509.ParseCertificate(certDER)
 	if err != nil {
-		return nil, nil, nil, err
+		return bundle, err
 	}
-	return certCA, certDER, privateKey, nil
+	bundle = caBundle{
+		Cert: certCA,
+		Key:  privateKey,
+	}
+	return bundle, nil
 }
 
-func generateServer(certCA *x509.Certificate, caKey *ecdsa.PrivateKey) ([]byte, *ecdsa.PrivateKey, error) {
+func generateServer(ca caBundle) (serverBundle, error) {
+	certCA := ca.Cert
+	caKey := ca.Key
+
+	var bundle serverBundle
+
 	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
-		return nil, nil, err
+		return bundle, err
 	}
 	template := &x509.Certificate{
 		Subject:     pkix.Name{CommonName: "tln-dev-server"},
@@ -109,9 +129,13 @@ func generateServer(certCA *x509.Certificate, caKey *ecdsa.PrivateKey) ([]byte, 
 	}
 	certDER, err := x509.CreateCertificate(rand.Reader, template, certCA, &privateKey.PublicKey, caKey)
 	if err != nil {
-		return nil, nil, err
+		return bundle, err
 	}
-	return certDER, privateKey, nil
+	bundle = serverBundle{
+		CertDER: certDER,
+		Key:     privateKey,
+	}
+	return bundle, nil
 }
 
 func writeCertPEM(path string, certDER []byte) error {
