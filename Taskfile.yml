@@ -52,6 +52,21 @@ tasks:
     cmds:
       - golangci-lint run
 
+  fmt:
+    desc: Run gofmt
+    cmds:
+      - gofmt -s -w .
+
+  test:
+    desc: Run unit tests
+    cmds:
+      - go test ./... -count=1
+
+  race:
+    desc: Run tests with race detector (required before push)
+    cmds:
+      - go test ./... -race -count=1
+
   tidy:
     desc: Tidy go.mod
     cmds:
