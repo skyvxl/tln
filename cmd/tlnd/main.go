@@ -29,6 +29,10 @@ func main() {
 }
 
 func run() error {
+	if err := config.LoadDotenv(); err != nil {
+		return err
+	}
+
 	cfg, err := config.LoadServer()
 	if err != nil {
 		return err
@@ -42,6 +46,8 @@ func run() error {
 		"commit", buildinfo.Commit,
 		"log_format", cfg.LogFormat,
 		"log_level", cfg.LogLevel,
+		"control_addr", cfg.ControlAddr,
+		"tls_cert", cfg.TLSCertFile,
 	)
 	log.Info("tlnd exiting (stub)")
 

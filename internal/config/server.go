@@ -1,3 +1,4 @@
+// Package config provides structures and functions for loading configuration parameters from environment variables.
 package config
 
 import (
@@ -8,8 +9,11 @@ import (
 
 // ServerConfig holds configuration parameters specific to the TLN server.
 type ServerConfig struct {
-	LogFormat string `env:"TLN_LOG_FORMAT" envDefault:"text"`
-	LogLevel  string `env:"TLN_LOG_LEVEL"  envDefault:"info"`
+	LogFormat   string `env:"TLN_LOG_FORMAT" envDefault:"text"`
+	LogLevel    string `env:"TLN_LOG_LEVEL"  envDefault:"info"`
+	ControlAddr string `env:"TLN_CONTROL_ADDR" envDefault:"127.0.0.1:7000"`
+	TLSCertFile string `env:"TLN_TLS_CERT_FILE" envDefault:"certs/server.crt"`
+	TLSKeyFile  string `env:"TLN_TLS_KEY_FILE"  envDefault:"certs/server.key"`
 }
 
 // LoadServer parses environment variables and returns a populated ServerConfig.

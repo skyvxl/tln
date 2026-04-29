@@ -29,6 +29,10 @@ func main() {
 }
 
 func run() error {
+	if err := config.LoadDotenv(); err != nil {
+		return err
+	}
+
 	cfg, err := config.LoadClient()
 	if err != nil {
 		return err
