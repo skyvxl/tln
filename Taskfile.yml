@@ -78,3 +78,17 @@ tasks:
       - "echo VERSION:    {{.VERSION}}"
       - "echo COMMIT:     {{.COMMIT}}"
       - "echo BUILD_DATE: {{.BUILD_DATE}}"
+
+  certs:
+    desc: Generate development certificates
+    cmds:
+      - go run ./scripts/dev-certs
+
+  certs:clean:
+    desc: Remove generated dev certificates
+    cmds:
+      - cmd: powershell -NoProfile -Command "if (Test-Path certs) { Remove-Item -Recurse
+          -Force certs }"
+        platforms: [ windows ]
+      - cmd: rm -rf certs
+        platforms: [ linux, darwin ]
