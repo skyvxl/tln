@@ -2,14 +2,18 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/skyvxl/tln/internal/buildinfo"
 	"github.com/skyvxl/tln/internal/config"
 	"github.com/skyvxl/tln/internal/logger"
+	"github.com/skyvxl/tln/internal/server"
 )
 
 func main() {
@@ -49,7 +53,18 @@ func run() error {
 		"control_addr", cfg.ControlAddr,
 		"tls_cert", cfg.TLSCertFile,
 	)
-	log.Info("tlnd exiting (stub)")
 
+	srv, err := server.NewServer(cfg, log)
+	if err != nil {
+		return err
+	}
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	err = srv.Run(ctx)
+	if err != nil {
+		return err
+	}
+	log.Info("tlnd stopped")
 	return nil
 }
