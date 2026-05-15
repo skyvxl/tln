@@ -9,3 +9,4 @@
 /.agents/
 /certs/
 .env
+.claude

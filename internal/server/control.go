@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net"
 	"sync"
-	"time"
 )
 
 func (s *Server) runControl(ctx context.Context) error {
@@ -56,16 +55,18 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 	}()
 	s.log.Info("connection accepted", "remote_addr", remoteAddr)
 
-	if tlsConn, ok := conn.(*tls.Conn); ok {
+	tlsConn, ok := conn.(*tls.Conn)
+	if ok {
 		if err := tlsConn.HandshakeContext(ctx); err != nil {
 			s.log.Warn("tls handshake failed", "remote_addr", remoteAddr, "err", err)
 			return
 		}
 	}
 
-	select {
-	case <-time.After(2 * time.Second):
-	case <-ctx.Done():
+	session := newControlSession(tlsConn, s.log)
+	if err := session.run(ctx); err != nil {
+		s.log.Warn("control session failed", "remote_addr", remoteAddr, "err", err)
 	}
+
 	s.log.Info("connection closed", "remote_addr", remoteAddr)
 }
