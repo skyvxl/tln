@@ -21,6 +21,12 @@ func TestCodec_RoundTrip(t *testing.T) {
 		{"echo_req short", &proto.EchoReq{Text: "hello"}},
 		{"echo_req unicode", &proto.EchoReq{Text: "привет, мир 🌍"}},
 		{"echo_resp", &proto.EchoResp{Text: "HELLO"}},
+		{"tunnel_request", &proto.TunnelRequest{Proto: proto.ProtoTCP, LocalPort: 8080, Subdomain: ""}},
+		{"tunnel_created", &proto.TunnelCreated{TunnelID: "tun_123", PublicAddr: "https://my-app.example.com"}},
+		{"tunnel_err", &proto.TunnelErr{Reason: "subdomain already taken"}},
+		{"new_conn", &proto.NewConn{TunnelID: "tun_123", ConnID: "conn_456"}},
+		{"tunnel_close", &proto.TunnelClose{TunnelID: "tun_123"}},
+		{"tunnel_closed", &proto.TunnelClosed{TunnelID: "tun_123", Reason: "client requested close"}},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
@@ -42,6 +48,40 @@ func TestCodec_RoundTrip(t *testing.T) {
 				t.Errorf("got %#v, want %#v", got, tc.msg)
 			}
 		})
+	}
+}
+
+func TestCodec_TunnelRequestOmitempty(t *testing.T) {
+	msg := &proto.TunnelRequest{
+		Proto:     proto.ProtoTCP,
+		LocalPort: 4242,
+		Subdomain: "",
+	}
+
+	var buf bytes.Buffer
+	c := proto.NewCodec(&buf)
+
+	if err := c.WriteMessage(msg); err != nil {
+		t.Fatalf("WriteMessage: %v", err)
+	}
+
+	raw := buf.Bytes()
+	if len(raw) < 4 {
+		t.Fatalf("frame too short: %d bytes", len(raw))
+	}
+
+	payload := raw[4:]
+	if bytes.Contains(payload, []byte(`"subdomain"`)) {
+		t.Fatalf("expected subdomain to be omitted, got payload: %s", string(payload))
+	}
+
+	got, err := c.ReadMessage()
+	if err != nil {
+		t.Fatalf("ReadMessage: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, msg) {
+		t.Fatalf("got %#v, want %#v", got, msg)
 	}
 }
 

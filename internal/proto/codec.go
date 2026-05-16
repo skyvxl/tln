@@ -110,6 +110,42 @@ func decodeByType(t MessageType, data json.RawMessage) (Message, error) {
 			return nil, fmt.Errorf("unmarshal %s: %w", t, err)
 		}
 		return &m, nil
+	case TypeTunnelRequest:
+		var m TunnelRequest
+		if err := json.Unmarshal(data, &m); err != nil {
+			return nil, fmt.Errorf("unmarshal %s: %w", t, err)
+		}
+		return &m, nil
+	case TypeTunnelCreated:
+		var m TunnelCreated
+		if err := json.Unmarshal(data, &m); err != nil {
+			return nil, fmt.Errorf("unmarshal %s: %w", t, err)
+		}
+		return &m, nil
+	case TypeTunnelErr:
+		var m TunnelErr
+		if err := json.Unmarshal(data, &m); err != nil {
+			return nil, fmt.Errorf("unmarshal %s: %w", t, err)
+		}
+		return &m, nil
+	case TypeNewConn:
+		var m NewConn
+		if err := json.Unmarshal(data, &m); err != nil {
+			return nil, fmt.Errorf("unmarshal %s: %w", t, err)
+		}
+		return &m, nil
+	case TypeTunnelClose:
+		var m TunnelClose
+		if err := json.Unmarshal(data, &m); err != nil {
+			return nil, fmt.Errorf("unmarshal %s: %w", t, err)
+		}
+		return &m, nil
+	case TypeTunnelClosed:
+		var m TunnelClosed
+		if err := json.Unmarshal(data, &m); err != nil {
+			return nil, fmt.Errorf("unmarshal %s: %w", t, err)
+		}
+		return &m, nil
 	default:
 		return nil, fmt.Errorf("%w: %q", ErrUnknownType, t)
 	}

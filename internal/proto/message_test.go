@@ -13,6 +13,12 @@ func TestMessageTypes(t *testing.T) {
 	}{
 		{msg: &proto.EchoReq{}, want: proto.TypeEchoReq},
 		{msg: &proto.EchoResp{}, want: proto.TypeEchoResp},
+		{msg: &proto.TunnelRequest{}, want: proto.TypeTunnelRequest},
+		{msg: &proto.TunnelCreated{}, want: proto.TypeTunnelCreated},
+		{msg: &proto.TunnelErr{}, want: proto.TypeTunnelErr},
+		{msg: &proto.NewConn{}, want: proto.TypeNewConn},
+		{msg: &proto.TunnelClose{}, want: proto.TypeTunnelClose},
+		{msg: &proto.TunnelClosed{}, want: proto.TypeTunnelClosed},
 	}
 	for _, tc := range tests {
 		t.Run(string(tc.want), func(t *testing.T) {
