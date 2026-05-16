@@ -23,6 +23,9 @@ linters:
         - style
         - performance
 
+      disabled-checks:
+        - uncheckedInlineErr
+
   exclusions:
     rules:
       - path: _test\.go

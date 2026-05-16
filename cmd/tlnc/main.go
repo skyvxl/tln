@@ -2,12 +2,16 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/skyvxl/tln/internal/buildinfo"
+	"github.com/skyvxl/tln/internal/client"
 	"github.com/skyvxl/tln/internal/config"
 	"github.com/skyvxl/tln/internal/logger"
 )
@@ -29,6 +33,10 @@ func main() {
 }
 
 func run() error {
+	if err := config.LoadDotenv(); err != nil {
+		return err
+	}
+
 	cfg, err := config.LoadClient()
 	if err != nil {
 		return err
@@ -42,7 +50,18 @@ func run() error {
 		"commit", buildinfo.Commit,
 	)
 
-	log.Info("tlnc exiting (phase 0 stub)")
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	cli, err := client.NewClient(cfg, log)
+	if err != nil {
+		return err
+	}
+
+	err = cli.Run(ctx)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

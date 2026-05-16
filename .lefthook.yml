@@ -1,4 +1,6 @@
 pre-commit:
   jobs:
+    - name: fmt
+      run: task fmt
     - name: lint
       run: task lint

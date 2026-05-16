@@ -9,8 +9,11 @@ import (
 
 // ClientConfig holds configuration parameters specific to the TLN client.
 type ClientConfig struct {
-	LogFormat string `env:"TLN_LOG_FORMAT" envDefault:"text"`
-	LogLevel  string `env:"TLN_LOG_LEVEL"  envDefault:"info"`
+	LogFormat  string `env:"TLN_LOG_FORMAT" envDefault:"text"`
+	LogLevel   string `env:"TLN_LOG_LEVEL"  envDefault:"info"`
+	ServerAddr string `env:"TLN_SERVER_ADDR" envDefault:"127.0.0.1:7000"`
+	ServerName string `env:"TLN_SERVER_NAME" envDefault:"localhost"`
+	CAFile     string `env:"TLN_CA_FILE" envDefault:"certs/ca.crt"`
 }
 
 // LoadClient parses environment variables and returns a populated ClientConfig.

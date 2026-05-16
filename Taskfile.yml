@@ -52,6 +52,21 @@ tasks:
     cmds:
       - golangci-lint run
 
+  fmt:
+    desc: Run gofmt
+    cmds:
+      - gofmt -s -w .
+
+  test:
+    desc: Run unit tests
+    cmds:
+      - go test ./... -count=1
+
+  race:
+    desc: Run tests with race detector (required before push)
+    cmds:
+      - go test ./... -race -count=1
+
   tidy:
     desc: Tidy go.mod
     cmds:
@@ -63,3 +78,17 @@ tasks:
       - "echo VERSION:    {{.VERSION}}"
       - "echo COMMIT:     {{.COMMIT}}"
       - "echo BUILD_DATE: {{.BUILD_DATE}}"
+
+  certs:
+    desc: Generate development certificates
+    cmds:
+      - go run ./scripts/dev-certs
+
+  certs:clean:
+    desc: Remove generated dev certificates
+    cmds:
+      - cmd: powershell -NoProfile -Command "if (Test-Path certs) { Remove-Item -Recurse
+          -Force certs }"
+        platforms: [ windows ]
+      - cmd: rm -rf certs
+        platforms: [ linux, darwin ]
