@@ -35,6 +35,10 @@ func NewCodec(rw io.ReadWriter) *Codec {
 // WriteMessage encodes msg as JSON, prefixes it with a 4-byte big-endian length,
 // and writes it to the underlying writer.
 func (c *Codec) WriteMessage(msg Message) error {
+	if msg == nil {
+		return fmt.Errorf("write message: nil message")
+	}
+
 	data, err := json.Marshal(msg)
 	if err != nil {
 		return fmt.Errorf("marshal message data: %w", err)
@@ -43,7 +47,7 @@ func (c *Codec) WriteMessage(msg Message) error {
 	env := envelope{Type: msg.Type(), Data: data}
 	payload, err := json.Marshal(env)
 	if err != nil {
-		return fmt.Errorf("marshal envelope")
+		return fmt.Errorf("marshal envelope: %w", err)
 	}
 
 	if len(payload) > MaxFrameSize {

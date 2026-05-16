@@ -34,8 +34,6 @@ func NewServer(cfg config.ServerConfig, log *slog.Logger) (*Server, error) {
 }
 
 // Run starts the server and blocks until the context is done.
-//
-// Note: now it a stub function.
 func (s *Server) Run(ctx context.Context) error {
 	s.log.Info("server started", "control_addr", s.cfg.ControlAddr)
 	defer s.log.Info("server stopped")

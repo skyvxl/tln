@@ -17,7 +17,7 @@ const (
 	FormatText Format = "text"
 )
 
-// New initializes and returns a configures *slog.Logger.
+// New initializes and returns a configured *slog.Logger.
 func New(w io.Writer, format Format, level string) *slog.Logger {
 	if w == nil {
 		w = os.Stderr

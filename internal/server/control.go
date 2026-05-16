@@ -39,10 +39,10 @@ func (s *Server) runControl(ctx context.Context) error {
 		}
 
 		wg.Add(1)
-		go func() {
+		go func(c net.Conn) {
 			defer wg.Done()
-			s.handleConnection(ctx, conn)
-		}()
+			s.handleConnection(ctx, c)
+		}(conn)
 	}
 }
 

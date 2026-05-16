@@ -3,7 +3,7 @@ package client
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"errors"
+	"fmt"
 	"os"
 )
 
@@ -12,12 +12,12 @@ import (
 func LoadTLSConfig(caFile, serverName string) (*tls.Config, error) {
 	bytes, err := os.ReadFile(caFile) //nolint:gosec // G304: config-driven path
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("read root certificate %q: %w", caFile, err)
 	}
 	pool := x509.NewCertPool()
 	ok := pool.AppendCertsFromPEM(bytes)
 	if !ok {
-		return nil, errors.New("failed to parse root certificate")
+		return nil, fmt.Errorf("failed to parse root certificate %q", caFile)
 	}
 	return &tls.Config{
 		RootCAs:    pool,

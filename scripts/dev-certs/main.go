@@ -118,14 +118,21 @@ func generateServer(ca caBundle) (serverBundle, error) {
 	if err != nil {
 		return bundle, err
 	}
+
+	serialMax := new(big.Int).Lsh(big.NewInt(1), 128)
+	serial, err := rand.Int(rand.Reader, serialMax)
+	if err != nil {
+		return bundle, err
+	}
 	template := &x509.Certificate{
-		Subject:     pkix.Name{CommonName: "tln-dev-server"},
-		NotBefore:   time.Now(),
-		NotAfter:    time.Now().Add(serverValidity),
-		KeyUsage:    x509.KeyUsageDigitalSignature,
-		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
-		DNSNames:    []string{"localhost"},
-		IPAddresses: []net.IP{net.ParseIP("127.0.0.1"), net.ParseIP("::1")},
+		SerialNumber: serial,
+		Subject:      pkix.Name{CommonName: "tln-dev-server"},
+		NotBefore:    time.Now(),
+		NotAfter:     time.Now().Add(serverValidity),
+		KeyUsage:     x509.KeyUsageDigitalSignature,
+		ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		DNSNames:     []string{"localhost"},
+		IPAddresses:  []net.IP{net.ParseIP("127.0.0.1"), net.ParseIP("::1")},
 	}
 	certDER, err := x509.CreateCertificate(rand.Reader, template, certCA, &privateKey.PublicKey, caKey)
 	if err != nil {
