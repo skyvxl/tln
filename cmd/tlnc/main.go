@@ -45,7 +45,8 @@ func run() error {
 	log := logger.New(os.Stderr, logger.Format(cfg.LogFormat), cfg.LogLevel)
 	slog.SetDefault(log)
 
-	log.Info("tlnc starting",
+	log.Info(
+		"tlnc starting",
 		"version", buildinfo.Version,
 		"commit", buildinfo.Commit,
 	)

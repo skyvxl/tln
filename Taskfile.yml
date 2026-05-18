@@ -55,7 +55,7 @@ tasks:
   fmt:
     desc: Run gofmt
     cmds:
-      - gofmt -s -w .
+      - gofumpt -l -w .
 
   test:
     desc: Run unit tests
